@@ -196,34 +196,33 @@
                         </button>
                     </form>
 
-                    <!-- Registration Form -->
                     <form id="register-form" class="auth-form hidden">
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="register-first-name" class="form-label">First Name</label>
-                                <input type="text" id="register-first-name" class="form-input" placeholder="First name" required>
+                                <input type="text" id="register-first-name" class="form-input" placeholder="First name" required name="firstName">
                             </div>
                             <div class="form-group">
                                 <label for="register-last-name" class="form-label">Last Name</label>
-                                <input type="text" id="register-last-name" class="form-input" placeholder="Last name" required>
+                                <input type="text" id="register-last-name" class="form-input" placeholder="Last name" required name="lastName">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="register-email" class="form-label">Email Address</label>
-                            <input type="email" id="register-email" class="form-input" placeholder="Enter your email" required>
+                            <input type="email" id="register-email" class="form-input" placeholder="Enter your email" required name="email">
                         </div>
                         <div class="form-group">
                             <label for="register-password" class="form-label">Password</label>
-                            <input type="password" id="register-password" class="form-input" placeholder="Create a password" required>
+                            <input type="password" id="register-password" class="form-input" placeholder="Create a password" required name="password">
                         </div>
                         <div class="form-group">
                             <label for="register-organization" class="form-label">Organization</label>
-                            <input type="text" id="register-organization" class="form-input" placeholder="Organization name" required>
+                            <input type="text" id="register-organization" class="form-input" placeholder="Organization name" required name="organization">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="register-industry" class="form-label">Industry</label>
-                                <select id="register-industry" class="form-select" required>
+                                <select id="register-industry" class="form-select" required name="industry">
                                     <option value="">Select industry</option>
                                     <option value="technology">Technology</option>
                                     <option value="healthcare">Healthcare</option>
@@ -235,18 +234,19 @@
                             </div>
                             <div class="form-group">
                                 <label for="register-role" class="form-label">Role</label>
-                                <input type="text" id="register-role" class="form-input" placeholder="Your role" required>
+                                <input type="text" id="register-role" class="form-input" placeholder="Your role" required name="role">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="register-country" class="form-label">Country</label>
-                            <input type="text" id="register-country" class="form-input" placeholder="Country" required>
+                            <input type="text" id="register-country" class="form-input" placeholder="Country" required name="country">
                         </div>
                         <button type="submit" class="btn btn-primary btn-full">
                             <i data-lucide="user-plus"></i>
                             Create Account
                         </button>
                     </form>
+
 
                     <!-- OTP Verification Form -->
                     <form id="otp-form" class="auth-form hidden">
