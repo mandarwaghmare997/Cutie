@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qryti - ISO 42001 Compliance Platform</title>
+    <meta name="description" content="Qryti - Automated ISO 42001 AI Management System Compliance Platform">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <img src="/images/qryti_logo.png" alt="Qryti" style="height: 60px; width: auto;">
+            </div>
+            <div class="loading-text">Qryti - ISO 42001 Compliance Platform</div>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="navbar" class="navbar hidden">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img src="/images/qryti_logo.png" alt="Qryti" class="nav-logo" style="height: 32px; width: auto;">
+                <span class="nav-title">Qryti Platform</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#dashboard" class="nav-link active" data-page="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    Dashboard
+                </a>
+                <a href="#assessments" class="nav-link" data-page="assessments">
+                    <i data-lucide="clipboard-check"></i>
+                    Assessments
+                </a>
+                <a href="#profile" class="nav-link" data-page="profile">
+                    <i data-lucide="user"></i>
+                    Profile
+                </a>
+            </div>
+            <div class="nav-actions">
+                <button id="logout-btn" class="btn btn-outline">
+                    <i data-lucide="log-out"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+        
+        <!-- Landing Page -->
+        <div id="landing-page" class="page active">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span class="badge-text">ISO 42001:2023 Certified</span>
+                    </div>
+                    <h1 class="hero-title">
+                        Qryti - Automated AI Governance
+                        <span class="gradient-text">Compliance Platform</span>
+                    </h1>
+                    <p class="hero-description">
+                        Streamline your ISO 42001 compliance journey with Qryti's comprehensive assessment platform. 
+                        Track progress, manage documentation, and achieve certification with confidence.
+                    </p>
+                    <div class="hero-actions">
+                        <button id="get-started-btn" class="btn btn-primary btn-large">
+                            <i data-lucide="rocket"></i>
+                            Start Your Compliance Journey
+                        </button>
+                        <button id="learn-more-btn" class="btn btn-outline btn-large">
+                            <i data-lucide="info"></i>
+                            Learn More
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="compliance-chart">
+                        <div class="chart-circle">
+                            <div class="chart-progress" data-progress="85"></div>
+                            <div class="chart-center">
+                                <span class="chart-percentage">85%</span>
+                                <span class="chart-label">Compliant</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="features-section">
+                <div class="container">
+                    <h2 class="section-title">Comprehensive Compliance Management</h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i data-lucide="shield-check"></i>
+                            </div>
+                            <h3 class="feature-title">Requirements Gathering</h3>
+                            <p class="feature-description">
+                                Systematically collect and document AI system requirements and organizational context.
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i data-lucide="search"></i>
+                            </div>
+                            <h3 class="feature-title">Gap Assessment</h3>
+                            <p class="feature-description">
+                                Identify compliance gaps and prioritize improvement areas with detailed analysis.
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i data-lucide="file-text"></i>
+                            </div>
+                            <h3 class="feature-title">Policy Review</h3>
+                            <p class="feature-description">
+                                Review and align organizational policies with ISO 42001 requirements.
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i data-lucide="settings"></i>
+                            </div>
+                            <h3 class="feature-title">Implementation Status</h3>
+                            <p class="feature-description">
+                                Track implementation progress and monitor control effectiveness.
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i data-lucide="clipboard-check"></i>
+                            </div>
+                            <h3 class="feature-title">Internal Audit</h3>
+                            <p class="feature-description">
+                                Conduct comprehensive internal audits and generate compliance reports.
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i data-lucide="award"></i>
+                            </div>
+                            <h3 class="feature-title">Certification</h3>
+                            <p class="feature-description">
+                                Generate professional compliance certificates upon successful completion.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authentication Pages -->
+        <div id="auth-page" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <div class="auth-logo">🤖</div>
+                        <h2 id="auth-title" class="auth-title">Welcome Back</h2>
+                        <p id="auth-subtitle" class="auth-subtitle">Sign in to continue your compliance journey</p>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="login-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="login-email" class="form-label">Email Address</label>
+                            <input type="email" id="login-email" class="form-input" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password" class="form-label">Password</label>
+                            <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i data-lucide="log-in"></i>
+                            Sign In
+                        </button>
+                    </form>
+
+                    <!-- Registration Form -->
+                    <form id="register-form" class="auth-form hidden">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="register-first-name" class="form-label">First Name</label>
+                                <input type="text" id="register-first-name" class="form-input" placeholder="First name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="register-last-name" class="form-label">Last Name</label>
+                                <input type="text" id="register-last-name" class="form-input" placeholder="Last name" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email" class="form-label">Email Address</label>
+                            <input type="email" id="register-email" class="form-input" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password" class="form-label">Password</label>
+                            <input type="password" id="register-password" class="form-input" placeholder="Create a password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-organization" class="form-label">Organization</label>
+                            <input type="text" id="register-organization" class="form-input" placeholder="Organization name" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="register-industry" class="form-label">Industry</label>
+                                <select id="register-industry" class="form-select" required>
+                                    <option value="">Select industry</option>
+                                    <option value="technology">Technology</option>
+                                    <option value="healthcare">Healthcare</option>
+                                    <option value="finance">Finance</option>
+                                    <option value="manufacturing">Manufacturing</option>
+                                    <option value="retail">Retail</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="register-role" class="form-label">Role</label>
+                                <input type="text" id="register-role" class="form-input" placeholder="Your role" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-country" class="form-label">Country</label>
+                            <input type="text" id="register-country" class="form-input" placeholder="Country" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i data-lucide="user-plus"></i>
+                            Create Account
+                        </button>
+                    </form>
+
+                    <!-- OTP Verification Form -->
+                    <form id="otp-form" class="auth-form hidden">
+                        <div class="form-group">
+                            <label for="otp-code" class="form-label">Verification Code</label>
+                            <input type="text" id="otp-code" class="form-input otp-input" placeholder="Enter 6-digit code" maxlength="6" required>
+                            <p class="form-help">We've sent a verification code to your email address.</p>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i data-lucide="check"></i>
+                            Verify Email
+                        </button>
+                        <button type="button" id="resend-otp-btn" class="btn btn-outline btn-full">
+                            <i data-lucide="refresh-cw"></i>
+                            Resend Code
+                        </button>
+                    </form>
+
+                    <div class="auth-footer">
+                        <p id="auth-switch-text">Don't have an account?</p>
+                        <button id="auth-switch-btn" class="btn-link">Sign up here</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Dashboard</h1>
+                <p class="page-subtitle">Overview of your compliance progress</p>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Overall Progress</h3>
+                        <i data-lucide="trending-up" class="card-icon"></i>
+                    </div>
+                    <div class="progress-circle-large">
+                        <div class="progress-ring">
+                            <div class="progress-fill" data-progress="0"></div>
+                            <div class="progress-center">
+                                <span class="progress-percentage">0%</span>
+                                <span class="progress-label">Complete</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Active Assessments</h3>
+                        <i data-lucide="clipboard-list" class="card-icon"></i>
+                    </div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Compliance Score</h3>
+                        <i data-lucide="award" class="card-icon"></i>
+                    </div>
+                    <div class="stat-value">--</div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Certificates</h3>
+                        <i data-lucide="certificate" class="card-icon"></i>
+                    </div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Generated</div>
+                </div>
+            </div>
+
+            <div class="dashboard-actions">
+                <button id="new-assessment-btn" class="btn btn-primary btn-large">
+                    <i data-lucide="plus"></i>
+                    Start New Assessment
+                </button>
+            </div>
+        </div>
+
+        <!-- Assessment Pages -->
+        <div id="assessment-page" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Assessments</h1>
+                <p class="page-subtitle">Manage your compliance assessments</p>
+            </div>
+            
+            <div id="assessments-list" class="assessments-grid">
+                <!-- Assessments will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profile-page" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Profile</h1>
+                <p class="page-subtitle">Manage your account settings</p>
+            </div>
+            
+            <div class="profile-content">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <i data-lucide="user"></i>
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profile-name" class="profile-name">Loading...</h3>
+                            <p id="profile-email" class="profile-email">Loading...</p>
+                        </div>
+                    </div>
+                    
+                    <form id="profile-form" class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profile-first-name" class="form-label">First Name</label>
+                                <input type="text" id="profile-first-name" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-last-name" class="form-label">Last Name</label>
+                                <input type="text" id="profile-last-name" class="form-input" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-organization" class="form-label">Organization</label>
+                            <input type="text" id="profile-organization" class="form-input" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profile-industry" class="form-label">Industry</label>
+                                <input type="text" id="profile-industry" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-role" class="form-label">Role</label>
+                                <input type="text" id="profile-role" class="form-input" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i data-lucide="save"></i>
+                            Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div id="modal-content" class="modal-content">
+            <!-- Modal content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/assessments.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Qryti Platform</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h2>Loading Admin Dashboard...</h2>
+        </div>
+    </div>
+
+    <!-- Admin Navigation -->
+    <nav id="admin-navbar" class="admin-navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img src="../images/qryti_logo.png" alt="Qryti" class="brand-icon" style="height: 32px; width: auto;">
+                <span class="brand-text">Qryti Admin</span>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="#overview" class="nav-link active" data-section="overview">
+                    <i data-lucide="bar-chart-3"></i>
+                    Overview
+                </a>
+                <a href="#users" class="nav-link" data-section="users">
+                    <i data-lucide="users"></i>
+                    Users
+                </a>
+                <a href="#assessments" class="nav-link" data-section="assessments">
+                    <i data-lucide="clipboard-list"></i>
+                    Assessments
+                </a>
+                <a href="#certificates" class="nav-link" data-section="certificates">
+                    <i data-lucide="award"></i>
+                    Certificates
+                </a>
+                <a href="#analytics" class="nav-link" data-section="analytics">
+                    <i data-lucide="trending-up"></i>
+                    Analytics
+                </a>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="btn btn-outline btn-small" id="refresh-data-btn">
+                    <i data-lucide="refresh-cw"></i>
+                    Refresh
+                </button>
+                <button class="btn btn-outline btn-small" id="admin-logout-btn">
+                    <i data-lucide="log-out"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <!-- Overview Section -->
+        <section id="overview-section" class="admin-section active">
+            <div class="section-header">
+                <h1 class="section-title">Platform Overview</h1>
+                <p class="section-subtitle">Real-time insights into platform usage and compliance metrics</p>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon">
+                        <i data-lucide="users"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <div class="kpi-value" id="total-users">--</div>
+                        <div class="kpi-label">Total Users</div>
+                        <div class="kpi-change positive" id="users-change">+12% this month</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon">
+                        <i data-lucide="clipboard-list"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <div class="kpi-value" id="total-assessments">--</div>
+                        <div class="kpi-label">Total Assessments</div>
+                        <div class="kpi-change positive" id="assessments-change">+8% this month</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon">
+                        <i data-lucide="award"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <div class="kpi-value" id="total-certificates">--</div>
+                        <div class="kpi-label">Certificates Issued</div>
+                        <div class="kpi-change positive" id="certificates-change">+15% this month</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon">
+                        <i data-lucide="trending-up"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <div class="kpi-value" id="avg-compliance-score">--</div>
+                        <div class="kpi-label">Avg Compliance Score</div>
+                        <div class="kpi-change positive" id="score-change">+3.2% this month</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>User Registration Trend</h3>
+                        <div class="chart-actions">
+                            <select class="chart-period-select" id="user-trend-period">
+                                <option value="7">Last 7 days</option>
+                                <option value="30" selected>Last 30 days</option>
+                                <option value="90">Last 90 days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="user-trend-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Assessment Status Distribution</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="assessment-status-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-section">
+                <div class="activity-header">
+                    <h3>Recent Activity</h3>
+                    <button class="btn btn-outline btn-small" id="view-all-activity">
+                        View All
+                    </button>
+                </div>
+                <div class="activity-list" id="recent-activity-list">
+                    <!-- Activity items will be populated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Users Section -->
+        <section id="users-section" class="admin-section">
+            <div class="section-header">
+                <h1 class="section-title">User Management</h1>
+                <p class="section-subtitle">Manage registered users and their account status</p>
+            </div>
+
+            <!-- Users Filters -->
+            <div class="filters-bar">
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Search users..." id="users-search">
+                </div>
+                <select class="filter-select" id="users-status-filter">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+                <select class="filter-select" id="users-industry-filter">
+                    <option value="">All Industries</option>
+                    <option value="technology">Technology</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="finance">Finance</option>
+                    <option value="manufacturing">Manufacturing</option>
+                    <option value="retail">Retail</option>
+                    <option value="other">Other</option>
+                </select>
+                <button class="btn btn-primary btn-small" id="export-users-btn">
+                    <i data-lucide="download"></i>
+                    Export
+                </button>
+            </div>
+
+            <!-- Users Table -->
+            <div class="table-container">
+                <table class="admin-table" id="users-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Organization</th>
+                            <th>Industry</th>
+                            <th>Assessments</th>
+                            <th>Certificates</th>
+                            <th>Last Active</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <!-- User rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="users-pagination">
+                <!-- Pagination will be populated here -->
+            </div>
+        </section>
+
+        <!-- Assessments Section -->
+        <section id="assessments-section" class="admin-section">
+            <div class="section-header">
+                <h1 class="section-title">Assessment Management</h1>
+                <p class="section-subtitle">Monitor assessment progress and compliance scores</p>
+            </div>
+
+            <!-- Assessment Filters -->
+            <div class="filters-bar">
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Search assessments..." id="assessments-search">
+                </div>
+                <select class="filter-select" id="assessments-status-filter">
+                    <option value="">All Status</option>
+                    <option value="not_started">Not Started</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="on_hold">On Hold</option>
+                </select>
+                <select class="filter-select" id="assessments-risk-filter">
+                    <option value="">All Risk Levels</option>
+                    <option value="low">Low Risk</option>
+                    <option value="medium">Medium Risk</option>
+                    <option value="high">High Risk</option>
+                    <option value="critical">Critical Risk</option>
+                </select>
+                <button class="btn btn-primary btn-small" id="export-assessments-btn">
+                    <i data-lucide="download"></i>
+                    Export
+                </button>
+            </div>
+
+            <!-- Assessments Table -->
+            <div class="table-container">
+                <table class="admin-table" id="assessments-table">
+                    <thead>
+                        <tr>
+                            <th>Assessment</th>
+                            <th>Organization</th>
+                            <th>AI System</th>
+                            <th>Risk Level</th>
+                            <th>Progress</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assessments-table-body">
+                        <!-- Assessment rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="assessments-pagination">
+                <!-- Pagination will be populated here -->
+            </div>
+        </section>
+
+        <!-- Certificates Section -->
+        <section id="certificates-section" class="admin-section">
+            <div class="section-header">
+                <h1 class="section-title">Certificate Management</h1>
+                <p class="section-subtitle">Track issued certificates and verification status</p>
+            </div>
+
+            <!-- Certificate Filters -->
+            <div class="filters-bar">
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Search certificates..." id="certificates-search">
+                </div>
+                <select class="filter-select" id="certificates-date-filter">
+                    <option value="">All Time</option>
+                    <option value="7">Last 7 days</option>
+                    <option value="30">Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                </select>
+                <button class="btn btn-primary btn-small" id="export-certificates-btn">
+                    <i data-lucide="download"></i>
+                    Export
+                </button>
+            </div>
+
+            <!-- Certificates Table -->
+            <div class="table-container">
+                <table class="admin-table" id="certificates-table">
+                    <thead>
+                        <tr>
+                            <th>Certificate ID</th>
+                            <th>Organization</th>
+                            <th>AI System</th>
+                            <th>Score</th>
+                            <th>Issued Date</th>
+                            <th>Valid Until</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="certificates-table-body">
+                        <!-- Certificate rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="certificates-pagination">
+                <!-- Pagination will be populated here -->
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics-section" class="admin-section">
+            <div class="section-header">
+                <h1 class="section-title">Analytics & Insights</h1>
+                <p class="section-subtitle">Deep dive into platform metrics and trends</p>
+            </div>
+
+            <!-- Analytics Charts -->
+            <div class="analytics-grid">
+                <div class="chart-card large">
+                    <div class="chart-header">
+                        <h3>Compliance Score Distribution</h3>
+                        <div class="chart-actions">
+                            <select class="chart-period-select" id="score-distribution-period">
+                                <option value="30">Last 30 days</option>
+                                <option value="90" selected>Last 90 days</option>
+                                <option value="365">Last year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="score-distribution-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Industry Breakdown</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="industry-breakdown-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Risk Level Distribution</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="risk-level-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Monthly Certificate Issuance</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthly-certificates-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insights Cards -->
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <h4>Top Performing Industry</h4>
+                        <i data-lucide="trophy"></i>
+                    </div>
+                    <div class="insight-content">
+                        <div class="insight-value" id="top-industry">Technology</div>
+                        <div class="insight-description">Average score: <span id="top-industry-score">89.2%</span></div>
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <h4>Completion Rate</h4>
+                        <i data-lucide="target"></i>
+                    </div>
+                    <div class="insight-content">
+                        <div class="insight-value" id="completion-rate">78.5%</div>
+                        <div class="insight-description">Assessments completed successfully</div>
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <h4>Average Time to Complete</h4>
+                        <i data-lucide="clock"></i>
+                    </div>
+                    <div class="insight-content">
+                        <div class="insight-value" id="avg-completion-time">12.3 days</div>
+                        <div class="insight-description">From start to certificate</div>
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <h4>Certificate Success Rate</h4>
+                        <i data-lucide="award"></i>
+                    </div>
+                    <div class="insight-content">
+                        <div class="insight-value" id="certificate-success-rate">85.7%</div>
+                        <div class="insight-description">Assessments achieving 70%+ score</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Container -->
+    <div id="modal-container" class="modal-container"></div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/admin.js"></script>
+    <script>
+        // Initialize admin dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Lucide icons
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+            // Initialize admin dashboard
+            if (window.adminDashboard) {
+                adminDashboard.init();
+            }
+
+            // Hide loading screen
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.style.display = 'none';
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
+

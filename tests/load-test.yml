@@ -1,0 +1,198 @@
+# Artillery Load Testing Configuration for ISO 42001 Platform
+# Tests API performance under various load conditions
+
+config:
+  target: 'https://api.yourcompany.com'  # Replace with your API URL
+  phases:
+    # Warm-up phase
+    - duration: 60
+      arrivalRate: 1
+      name: "Warm-up"
+    
+    # Ramp-up phase
+    - duration: 120
+      arrivalRate: 1
+      rampTo: 10
+      name: "Ramp-up"
+    
+    # Sustained load
+    - duration: 300
+      arrivalRate: 10
+      name: "Sustained load"
+    
+    # Peak load
+    - duration: 60
+      arrivalRate: 20
+      name: "Peak load"
+    
+    # Cool-down
+    - duration: 60
+      arrivalRate: 5
+      name: "Cool-down"
+
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+      User-Agent: 'Artillery Load Test'
+
+  processor: "./load-test-processor.js"
+
+scenarios:
+  # Health check scenario
+  - name: "Health Check"
+    weight: 20
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+
+  # User registration scenario
+  - name: "User Registration"
+    weight: 15
+    flow:
+      - post:
+          url: "/auth/register"
+          json:
+            first_name: "{{ $randomFirstName() }}"
+            last_name: "{{ $randomLastName() }}"
+            email: "{{ $randomEmail() }}"
+            password: "TestPassword123!"
+            organization: "{{ $randomCompany() }}"
+            industry: "Technology"
+            role: "Compliance Manager"
+            country: "United States"
+          expect:
+            - statusCode: [200, 201]
+
+  # User login scenario
+  - name: "User Login"
+    weight: 25
+    flow:
+      - post:
+          url: "/auth/login"
+          json:
+            email: "test@example.com"
+            password: "TestPassword123!"
+          capture:
+            - json: "$.access_token"
+              as: "authToken"
+          expect:
+            - statusCode: 200
+      
+      # Get user profile
+      - get:
+          url: "/user/profile"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+
+  # Assessment creation scenario
+  - name: "Assessment Management"
+    weight: 30
+    flow:
+      # Login first
+      - post:
+          url: "/auth/login"
+          json:
+            email: "test@example.com"
+            password: "TestPassword123!"
+          capture:
+            - json: "$.access_token"
+              as: "authToken"
+      
+      # Create assessment
+      - post:
+          url: "/assessments"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            ai_system_name: "Test AI System"
+            description: "Load testing assessment"
+            industry: "Technology"
+            risk_level: "Medium"
+          capture:
+            - json: "$.assessment_id"
+              as: "assessmentId"
+          expect:
+            - statusCode: [200, 201]
+      
+      # Get assessment
+      - get:
+          url: "/assessments/{{ assessmentId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      
+      # Submit response
+      - post:
+          url: "/assessments/{{ assessmentId }}/responses"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            stage: "requirements_gathering"
+            question_id: "q1"
+            response_type: "text"
+            response_value: "Test response for load testing"
+          expect:
+            - statusCode: [200, 201]
+
+  # Admin dashboard scenario
+  - name: "Admin Dashboard"
+    weight: 10
+    flow:
+      # Admin login
+      - post:
+          url: "/auth/login"
+          json:
+            email: "admin@example.com"
+            password: "AdminPassword123!"
+          capture:
+            - json: "$.access_token"
+              as: "adminToken"
+      
+      # Get dashboard stats
+      - get:
+          url: "/admin/dashboard/stats"
+          headers:
+            Authorization: "Bearer {{ adminToken }}"
+          expect:
+            - statusCode: 200
+      
+      # Get users list
+      - get:
+          url: "/admin/users"
+          headers:
+            Authorization: "Bearer {{ adminToken }}"
+          expect:
+            - statusCode: 200
+      
+      # Get assessments list
+      - get:
+          url: "/admin/assessments"
+          headers:
+            Authorization: "Bearer {{ adminToken }}"
+          expect:
+            - statusCode: 200
+
+# Performance expectations
+expect:
+  # Response time thresholds
+  - statusCode: 200
+  - contentType: json
+  - hasProperty: 'status'
+  
+  # Performance thresholds
+  - responseTime: 2000  # Max 2 seconds
+  
+# Metrics to track
+metrics:
+  - name: "response_time_p95"
+    unit: "ms"
+  - name: "response_time_p99"
+    unit: "ms"
+  - name: "error_rate"
+    unit: "percent"
+

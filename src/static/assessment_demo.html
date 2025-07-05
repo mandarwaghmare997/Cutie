@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requirements Gathering - Qryti Assessment</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .assessment-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .progress-indicator {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .step.active {
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .step.active .step-number {
+            background: #4f46e5;
+            color: white;
+        }
+        .question-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .question-number {
+            color: #4f46e5;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .question-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+        .question-description {
+            color: #6b7280;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .radio-option:hover {
+            border-color: #4f46e5;
+            background: #f8faff;
+        }
+        .radio-option input[type="radio"] {
+            margin-right: 12px;
+        }
+        .radio-option.selected {
+            border-color: #4f46e5;
+            background: #f0f4ff;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+        }
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .file-upload {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: #f9fafb;
+            transition: all 0.3s ease;
+        }
+        .file-upload:hover {
+            border-color: #4f46e5;
+            background: #f8faff;
+        }
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        .file-upload-label {
+            cursor: pointer;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="assessment-container">
+        <!-- Assessment Header -->
+        <div class="assessment-header">
+            <h1>Stage 1: Requirements Gathering</h1>
+            <p>TechCorp Solutions Inc. • Sarah Johnson</p>
+            <p>Systematically collect and document AI system requirements and organizational context</p>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+            <div class="progress-steps">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <span>Requirements</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <span>Gap Analysis</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span>Policy Review</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <span>Implementation</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <span>Internal Audit</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <span>Certification</span>
+                </div>
+            </div>
+            <div style="background: #e5e7eb; height: 4px; border-radius: 2px;">
+                <div style="background: #4f46e5; height: 4px; border-radius: 2px; width: 16.67%;"></div>
+            </div>
+        </div>
+
+        <!-- Question 1: AI System Overview -->
+        <div class="question-card">
+            <div class="question-number">Question 1 of 8</div>
+            <div class="question-title">AI System Overview</div>
+            <div class="question-description">
+                Provide a comprehensive description of your primary AI system that requires ISO 42001 compliance assessment.
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">AI System Name *</label>
+                <input type="text" class="form-input" placeholder="e.g., Customer Service AI Assistant" value="TechCorp AI Security Platform">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">System Description *</label>
+                <textarea class="form-input form-textarea" placeholder="Describe the AI system's purpose, functionality, and key features...">An advanced AI-powered cybersecurity platform that provides real-time threat detection, automated incident response, and predictive security analytics for enterprise environments. The system uses machine learning algorithms to analyze network traffic, identify anomalies, and recommend security actions.</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Primary Use Case *</label>
+                <select class="form-select">
+                    <option value="">Select primary use case</option>
+                    <option value="cybersecurity" selected>Cybersecurity & Threat Detection</option>
+                    <option value="customer-service">Customer Service & Support</option>
+                    <option value="data-analytics">Data Analytics & Insights</option>
+                    <option value="automation">Process Automation</option>
+                    <option value="recommendation">Recommendation Systems</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Question 2: Risk Assessment -->
+        <div class="question-card">
+            <div class="question-number">Question 2 of 8</div>
+            <div class="question-title">Risk Level Assessment</div>
+            <div class="question-description">
+                Based on your AI system's impact and usage, what risk level would you assign?
+            </div>
+            
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="risk-level" value="low">
+                    <div>
+                        <strong>Low Risk</strong><br>
+                        <small>Limited impact, minimal data processing, low automation level</small>
+                    </div>
+                </label>
+                <label class="radio-option selected">
+                    <input type="radio" name="risk-level" value="medium" checked>
+                    <div>
+                        <strong>Medium Risk</strong><br>
+                        <small>Moderate impact, significant data processing, partial automation</small>
+                    </div>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="risk-level" value="high">
+                    <div>
+                        <strong>High Risk</strong><br>
+                        <small>High impact, extensive data processing, high automation level</small>
+                    </div>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="risk-level" value="critical">
+                    <div>
+                        <strong>Critical Risk</strong><br>
+                        <small>Critical impact, sensitive data, full automation, safety implications</small>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Question 3: Data Handling -->
+        <div class="question-card">
+            <div class="question-number">Question 3 of 8</div>
+            <div class="question-title">Data Handling & Privacy</div>
+            <div class="question-description">
+                Describe the types of data your AI system processes and your data handling practices.
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Types of Data Processed *</label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+                    <label style="display: flex; align-items: center;">
+                        <input type="checkbox" style="margin-right: 8px;" checked> Network Traffic Data
+                    </label>
+                    <label style="display: flex; align-items: center;">
+                        <input type="checkbox" style="margin-right: 8px;" checked> System Logs
+                    </label>
+                    <label style="display: flex; align-items: center;">
+                        <input type="checkbox" style="margin-right: 8px;"> Personal Data
+                    </label>
+                    <label style="display: flex; align-items: center;">
+                        <input type="checkbox" style="margin-right: 8px;"> Financial Data
+                    </label>
+                    <label style="display: flex; align-items: center;">
+                        <input type="checkbox" style="margin-right: 8px;" checked> Security Metadata
+                    </label>
+                    <label style="display: flex; align-items: center;">
+                        <input type="checkbox" style="margin-right: 8px;"> Health Data
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Data Retention Period</label>
+                <select class="form-select">
+                    <option value="">Select retention period</option>
+                    <option value="30-days">30 days</option>
+                    <option value="90-days" selected>90 days</option>
+                    <option value="1-year">1 year</option>
+                    <option value="2-years">2 years</option>
+                    <option value="indefinite">Indefinite</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Question 4: Documentation Upload -->
+        <div class="question-card">
+            <div class="question-number">Question 4 of 8</div>
+            <div class="question-title">Supporting Documentation</div>
+            <div class="question-description">
+                Upload any existing documentation related to your AI system (optional but recommended).
+            </div>
+            
+            <div class="file-upload">
+                <input type="file" id="file-upload" multiple accept=".pdf,.doc,.docx,.txt">
+                <label for="file-upload" class="file-upload-label">
+                    📁 Click to upload files or drag and drop<br>
+                    <small style="color: #6b7280;">Supported formats: PDF, DOC, DOCX, TXT (Max 10MB each)</small>
+                </label>
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <div style="padding: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; font-size: 14px;">
+                    ✅ <strong>AI_System_Architecture.pdf</strong> (2.3 MB) - Uploaded
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="navigation-buttons">
+            <button class="btn-secondary">← Back to Dashboard</button>
+            <div>
+                <button class="btn-secondary">Save Progress</button>
+                <button class="btn-primary">Continue to Next Question →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add interactivity
+        document.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('input[type="radio"]').checked = true;
+            });
+        });
+    </script>
+</body>
+</html>
+

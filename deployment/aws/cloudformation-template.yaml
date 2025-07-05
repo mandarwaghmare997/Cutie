@@ -1,0 +1,595 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Qryti - ISO 42001 Compliance Platform - Free Tier Optimized AWS Infrastructure'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues: [development, staging, production]
+    Description: Deployment environment
+    
+  AdminEmail:
+    Type: String
+    Description: Administrator email address for notifications
+    
+  JWTSecret:
+    Type: String
+    NoEcho: true
+    Description: JWT secret key for authentication
+    
+  EncryptionKey:
+    Type: String
+    NoEcho: true
+    Description: Encryption key for sensitive data
+    
+  DomainName:
+    Type: String
+    Default: 'app.qryti.com'
+    Description: Custom domain name
+    
+  LambdaS3Bucket:
+    Type: String
+    Description: S3 bucket containing Lambda deployment package
+    
+  LambdaS3Key:
+    Type: String
+    Description: S3 key for Lambda deployment package
+
+Conditions:
+  HasCustomDomain: !Not [!Equals [!Ref DomainName, '']]
+  IsProduction: !Equals [!Ref Environment, 'production']
+
+Resources:
+  # S3 Bucket for Frontend Hosting (Free Tier: 5GB storage)
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'qryti-frontend-${Environment}-${AWS::AccountId}'
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ['*']
+            AllowedMethods: [GET, HEAD]
+            AllowedOrigins: ['*']
+            MaxAge: 3600
+      # Free Tier Optimization: Lifecycle rules to manage storage
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 7
+      Tags:
+        - Key: Project
+          Value: Qryti
+        - Key: Domain
+          Value: Qryti.com
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Component
+          Value: Frontend
+        - Key: CostOptimization
+          Value: FreeTier
+
+  # S3 Bucket Policy for Frontend
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource: !Sub '${FrontendBucket}/*'
+
+  # S3 Bucket for Document Storage (Free Tier: 5GB storage)
+  DocumentsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'qryti-documents-${Environment}-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      # Free Tier Optimization: Lifecycle rules
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldUploads
+            Status: Enabled
+            ExpirationInDays: 90
+          - Id: TransitionToIA
+            Status: Enabled
+            TransitionInDays: 30
+            StorageClass: STANDARD_IA
+      Tags:
+        - Key: Project
+          Value: Qryti
+        - Key: Domain
+          Value: Qryti.com
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Component
+          Value: DocumentStorage
+        - Key: CostOptimization
+          Value: FreeTier
+
+  # DynamoDB Table for Users (Free Tier: 25GB storage, 25 RCU/WCU)
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'qryti-users-${Environment}'
+      BillingMode: PROVISIONED
+      # Free Tier Limits: 25 RCU/WCU
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: email-index
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false  # Disabled for free tier
+      Tags:
+        - Key: Project
+          Value: Qryti
+        - Key: Domain
+          Value: Qryti.com
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Component
+          Value: Database
+        - Key: CostOptimization
+          Value: FreeTier
+
+  # DynamoDB Table for Assessments (Free Tier optimized)
+  AssessmentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'qryti-assessments-${Environment}'
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      AttributeDefinitions:
+        - AttributeName: assessment_id
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: assessment_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: user-index
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false  # Disabled for free tier
+      Tags:
+        - Key: Project
+          Value: Qryti
+        - Key: Domain
+          Value: Qryti.com
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Component
+          Value: Database
+        - Key: CostOptimization
+          Value: FreeTier
+
+  # DynamoDB Table for Certificates (Free Tier optimized)
+  CertificatesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'qryti-certificates-${Environment}'
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      AttributeDefinitions:
+        - AttributeName: certificate_id
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: certificate_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: user-index
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false  # Disabled for free tier
+      Tags:
+        - Key: Project
+          Value: Qryti
+        - Key: Domain
+          Value: Qryti.com
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Component
+          Value: Database
+        - Key: CostOptimization
+          Value: FreeTier
+
+  # IAM Role for Lambda Functions
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'qryti-lambda-role-${Environment}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: QrytiLambdaPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - !GetAtt UsersTable.Arn
+                  - !GetAtt AssessmentsTable.Arn
+                  - !GetAtt CertificatesTable.Arn
+                  - !Sub '${UsersTable.Arn}/index/*'
+                  - !Sub '${AssessmentsTable.Arn}/index/*'
+                  - !Sub '${CertificatesTable.Arn}/index/*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  - !Sub '${DocumentsBucket}/*'
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: '*'
+                Condition:
+                  StringEquals:
+                    'ses:FromAddress': !Ref AdminEmail
+      Tags:
+        - Key: Project
+          Value: Qryti
+        - Key: Domain
+          Value: Qryti.com
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Component
+          Value: IAM
+        - Key: CostOptimization
+          Value: FreeTier
+
+  # Lambda Function for API (Free Tier: 1M requests/month)
+  QrytiApiFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'qryti-api-${Environment}'
+      Runtime: python3.11
+      Handler: main.lambda_handler
+      Code:
+        S3Bucket: !Ref LambdaS3Bucket
+        S3Key: !Ref LambdaS3Key
+      Role: !GetAtt LambdaExecutionRole.Arn
+      # Free Tier Optimization: Lower memory and timeout
+      Timeout: 30
+      MemorySize: 256  # Reduced from 512 for cost optimization
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          USERS_TABLE: !Ref UsersTable
+          ASSESSMENTS_TABLE: !Ref AssessmentsTable
+          CERTIFICATES_TABLE: !Ref CertificatesTable
+          DOCUMENTS_BUCKET: !Ref DocumentsBucket
+          JWT_SECRET: !Ref JWTSecret
+          ENCRYPTION_KEY: !Ref EncryptionKey
+          ADMIN_EMAIL: !Ref AdminEmail
+      # Free Tier: Reserved concurrency to control costs
+      ReservedConcurrencyLimit: 10
+      Tags:
+        - Key: Project
+          Value: Qryti
+        - Key: Domain
+          Value: Qryti.com
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Component
+          Value: API
+        - Key: CostOptimization
+          Value: FreeTier
+
+  # API Gateway (Free Tier: 1M API calls/month)
+  QrytiApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub 'qryti-api-${Environment}'
+      Description: Qryti ISO 42001 Compliance Platform API
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      Tags:
+        - Key: Project
+          Value: Qryti
+        - Key: Domain
+          Value: Qryti.com
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Component
+          Value: API
+        - Key: CostOptimization
+          Value: FreeTier
+
+  # API Gateway Resource (Proxy)
+  ApiGatewayProxyResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref QrytiApiGateway
+      ParentId: !GetAtt QrytiApiGateway.RootResourceId
+      PathPart: '{proxy+}'
+
+  # API Gateway Method (ANY)
+  ApiGatewayProxyMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref QrytiApiGateway
+      ResourceId: !Ref ApiGatewayProxyResource
+      HttpMethod: ANY
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${QrytiApiFunction.Arn}/invocations'
+
+  # API Gateway Root Method (ANY)
+  ApiGatewayRootMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref QrytiApiGateway
+      ResourceId: !GetAtt QrytiApiGateway.RootResourceId
+      HttpMethod: ANY
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${QrytiApiFunction.Arn}/invocations'
+
+  # API Gateway Deployment
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - ApiGatewayProxyMethod
+      - ApiGatewayRootMethod
+    Properties:
+      RestApiId: !Ref QrytiApiGateway
+      StageName: !Ref Environment
+
+  # Lambda Permission for API Gateway
+  LambdaApiGatewayPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref QrytiApiFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QrytiApiGateway}/*/*'
+
+  # CloudFront Distribution (Free Tier: 50GB data transfer)
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub 'Qryti Platform - ${Environment} - Free Tier Optimized'
+        DefaultRootObject: index.html
+        # Free Tier Optimization: Use only US/Europe edge locations
+        PriceClass: PriceClass_100
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+          - Id: ApiOrigin
+            DomainName: !Sub '${QrytiApiGateway}.execute-api.${AWS::Region}.amazonaws.com'
+            OriginPath: !Sub '/${Environment}'
+            CustomOriginConfig:
+              HTTPPort: 443
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          # Free Tier Optimization: Longer cache times
+          MinTTL: 0
+          DefaultTTL: 86400
+          MaxTTL: 31536000
+        CacheBehaviors:
+          - PathPattern: '/api/*'
+            TargetOriginId: ApiOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            CachedMethods:
+              - GET
+              - HEAD
+            ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+                - Content-Type
+              Cookies:
+                Forward: none
+            MinTTL: 0
+            DefaultTTL: 0
+            MaxTTL: 0
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+        # Custom domain configuration
+        Aliases: !If
+          - HasCustomDomain
+          - [!Ref DomainName]
+          - !Ref AWS::NoValue
+      Tags:
+        - Key: Project
+          Value: Qryti
+        - Key: Domain
+          Value: Qryti.com
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Component
+          Value: CDN
+        - Key: CostOptimization
+          Value: FreeTier
+
+  # CloudWatch Log Group for Lambda (Free Tier: 5GB logs)
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/qryti-api-${Environment}'
+      RetentionInDays: 7  # Reduced from 14 for cost optimization
+
+  # Billing Alert for Free Tier Monitoring
+  BillingAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'qryti-billing-alert-${Environment}'
+      AlarmDescription: 'Alert when AWS charges exceed $5'
+      MetricName: EstimatedCharges
+      Namespace: AWS/Billing
+      Statistic: Maximum
+      Period: 86400
+      EvaluationPeriods: 1
+      Threshold: 5.0
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: Currency
+          Value: USD
+      TreatMissingData: notBreaching
+
+Outputs:
+  FrontendUrl:
+    Description: Frontend URL
+    Value: !If
+      - HasCustomDomain
+      - !Sub 'https://${DomainName}'
+      - !Sub 'https://${CloudFrontDistribution.DomainName}'
+    Export:
+      Name: !Sub '${AWS::StackName}-FrontendUrl'
+
+  ApiGatewayUrl:
+    Description: API Gateway URL
+    Value: !Sub 'https://${QrytiApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Environment}'
+    Export:
+      Name: !Sub '${AWS::StackName}-ApiUrl'
+
+  FrontendBucket:
+    Description: Frontend S3 Bucket Name
+    Value: !Ref FrontendBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-FrontendBucket'
+
+  DocumentsBucket:
+    Description: Documents S3 Bucket Name
+    Value: !Ref DocumentsBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-DocumentsBucket'
+
+  CloudFrontDistribution:
+    Description: CloudFront Distribution ID
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: !Sub '${AWS::StackName}-CloudFrontDistribution'
+
+  UsersTable:
+    Description: Users DynamoDB Table Name
+    Value: !Ref UsersTable
+    Export:
+      Name: !Sub '${AWS::StackName}-UsersTable'
+
+  AssessmentsTable:
+    Description: Assessments DynamoDB Table Name
+    Value: !Ref AssessmentsTable
+    Export:
+      Name: !Sub '${AWS::StackName}-AssessmentsTable'
+
+  CertificatesTable:
+    Description: Certificates DynamoDB Table Name
+    Value: !Ref CertificatesTable
+    Export:
+      Name: !Sub '${AWS::StackName}-CertificatesTable'
+
+  EstimatedMonthlyCost:
+    Description: Estimated monthly cost (within free tier)
+    Value: '$0-5 (Free Tier Optimized)'
+
+  FreeTierLimits:
+    Description: Free tier resource limits configured
+    Value: 'Lambda:1M req/mo, DynamoDB:25GB+25RCU/WCU, S3:5GB, CloudFront:50GB, SES:200emails/day'
+
