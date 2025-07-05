@@ -2,7 +2,8 @@
 
 class APIClient {
     constructor() {
-        this.baseURL = window.location.origin;
+        // Use the deployed API Gateway URL
+        this.baseURL = 'https://jipehrp7qa.execute-api.ap-south-1.amazonaws.com/production';
         this.token = utils.storage.get('accessToken');
         this.refreshToken = utils.storage.get('refreshToken');
     }
