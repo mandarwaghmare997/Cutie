@@ -159,8 +159,8 @@ class AuthManager {
             }
 
             const userData = {
-                firstName: formData['first-name'],
-                lastName: formData['last-name'],
+                firstName: formData['firstName'],
+                lastName: formData['lastName'],
                 email: formData.email,
                 password: formData.password,
                 organization: formData.organization,
